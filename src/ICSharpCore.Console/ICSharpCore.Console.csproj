@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <RootNamespace>ICSharpCore</RootNamespace>
+    <AssemblyName>ICSharpCore.Console</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ICSharpCore.Kernel\ICSharpCore.Kernel.csproj" />
+  </ItemGroup>
+
+</Project>
