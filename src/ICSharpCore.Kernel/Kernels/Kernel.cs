@@ -1,7 +1,11 @@
-﻿using NetMQ;
+﻿using ICSharpCore.Protocols;
+using ICSharpCore.RequestHandlers;
+using NetMQ;
 using NetMQ.Sockets;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,15 +31,26 @@ namespace ICSharpCore
 
             // https://netmq.readthedocs.io/en/latest/router-dealer/
             string serverAddress = $"@tcp://{conn.IP}:{conn.ShellPort}";
+            string iopubAddress = $"@tcp://{conn.IP}:{conn.IOPubPort}";
 
             using (var server = new RouterSocket(serverAddress))
+            using (var iopub = new PublisherSocket(iopubAddress))
             using (var poller = new NetMQPoller())
             {
                 // Handler for messages coming in to the frontend
                 server.ReceiveReady += (s, e) =>
                 {
-                    var msg = e.Socket.ReceiveMultipartMessage();
-                    Console.WriteLine($"Received: {msg.ToString()}");
+                    var raw = e.Socket.ReceiveMultipartMessage();
+                    Console.WriteLine($"Received: {raw.ToString()}");
+                    var header = JsonConvert.DeserializeObject<Header>(raw[3].ConvertToString());
+                    switch (header.MessageType)
+                    {
+                        case "kernel_info_request":
+                            var message = new Message<ContentOfKernelInfoRequest>(header, raw);
+                            var handler = new KernelInfoHandler(conn.Key, server, iopub);
+                            handler.Process(message);
+                            break;
+                    }
                 };
 
                 poller.Add(server);
