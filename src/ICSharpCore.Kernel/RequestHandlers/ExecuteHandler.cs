@@ -1,4 +1,5 @@
-﻿using ICSharpCore.Protocols;
+﻿using ICSharpCore.Kernels;
+using ICSharpCore.Protocols;
 using ICSharpCore.RequestHandlers;
 using NetMQ;
 using NetMQ.Sockets;
@@ -10,22 +11,22 @@ using System.Text;
 
 namespace ICSharpCore.RequestHandlers
 {
-    public class ExecuteHandler
+    public class ExecuteHandler<T> : IRequestHandler<T> where T : ContentOfExecuteRequest
     {
-        private string key;
-        private PublisherSocket iopub;
-        private RouterSocket server;
+        private MessageSender sender;
 
-        public ExecuteHandler(string key, RouterSocket server, PublisherSocket iopub)
+        public ExecuteHandler(MessageSender sender)
         {
-            this.key = key;
-            this.server = server;
-            this.iopub = iopub;
+            this.sender = sender;
         }
 
-        public void Process(Message<ContentOfKernelInfoRequest> message)
+        public void Process(Message<T> message)
         {
-            
+            sender.Send(message, new ContentOfStatus { ExecutionState = Status.Busy }, MessageType.Status);
+
+            sender.Send(message, new ContentOfKernelInfoReply(), MessageType.KernelInfoReply);
+
+            sender.Send(message, new ContentOfStatus { ExecutionState = Status.Idle }, MessageType.Status);
         }
     }
 }

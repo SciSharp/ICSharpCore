@@ -1,4 +1,5 @@
-﻿using ICSharpCore.Protocols;
+﻿using ICSharpCore.Kernels;
+using ICSharpCore.Protocols;
 using ICSharpCore.RequestHandlers;
 using NetMQ;
 using NetMQ.Sockets;
@@ -37,18 +38,24 @@ namespace ICSharpCore
             using (var iopub = new PublisherSocket(iopubAddress))
             using (var poller = new NetMQPoller())
             {
+                var sender = new MessageSender(conn.Key, iopub);
+
                 // Handler for messages coming in to the frontend
                 server.ReceiveReady += (s, e) =>
                 {
                     var raw = e.Socket.ReceiveMultipartMessage();
                     Console.WriteLine($"Received: {raw.ToString()}");
                     var header = JsonConvert.DeserializeObject<Header>(raw[3].ConvertToString());
+
                     switch (header.MessageType)
                     {
                         case "kernel_info_request":
-                            var message = new Message<ContentOfKernelInfoRequest>(header, raw);
-                            var handler = new KernelInfoHandler(conn.Key, server, iopub);
-                            handler.Process(message);
+                            new KernelInfoHandler<ContentOfKernelInfoRequest>(sender)
+                                .Process(new Message<ContentOfKernelInfoRequest>(header, raw));
+                            break;
+                        case "execute_request":
+                            new ExecuteHandler<ContentOfExecuteRequest>(sender)
+                                .Process(new Message<ContentOfExecuteRequest>(header, raw));
                             break;
                     }
                 };
