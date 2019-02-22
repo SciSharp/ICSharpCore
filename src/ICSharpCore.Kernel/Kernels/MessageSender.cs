@@ -43,7 +43,7 @@ namespace ICSharpCore.Kernels
 
             var encoder = new UTF8Encoding();
             List<string> messages = new List<string>();
-            var signature = Sign<C>(key, ioPubMessage, messages, iopub);
+            var signature = Sign(key, ioPubMessage, messages, iopub);
 
             // send
             foreach (var id in request.Identities)
