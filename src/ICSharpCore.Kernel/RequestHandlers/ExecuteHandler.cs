@@ -39,7 +39,10 @@ namespace ICSharpCore.RequestHandlers
             var ctx = GetExecuteInteractiveCommand(commands);
             await ctx.Command.Execute(new ExecuteInteractiveCommandOptions(null, null, null));
 
-            var result = ctx.Console.Out.ToString();
+            var result = ctx.Console.Out.ToString()
+                .Split('\r', '\n')
+                .FirstOrDefault()?
+                .Substring(2);
             var content = new ContentOfExecuteReplyOk
             {
                 ExecutionCount = 1,
@@ -63,7 +66,7 @@ namespace ICSharpCore.RequestHandlers
             return (new ExecuteInteractiveCommand(console, logFactory), console);
         }
 
-        public static LogFactory CreateLogFactory()
+        private static LogFactory CreateLogFactory()
         {
             return type => (level, message, exception) =>
             {
