@@ -7,6 +7,7 @@ using ICSharpCore.RequestHandlers;
 using NetMQ;
 using NetMQ.Sockets;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -19,16 +20,16 @@ namespace ICSharpCore.RequestHandlers
 {
     public class ExecuteHandler<T> : IRequestHandler<T> where T : ContentOfExecuteRequest
     {
-        private MessageSender sender;
+        private MessageSender iopub;
 
         public ExecuteHandler(MessageSender sender)
         {
-            this.sender = sender;
+            this.iopub = sender;
         }
 
         public async void Process(Message<T> message)
         {
-            sender.Send(message, new ContentOfStatus { ExecutionState = Status.Busy }, MessageType.Status);
+            iopub.Send(message, new ContentOfStatus { ExecutionState = Status.Busy }, MessageType.Status);
 
             var commands = new[]
             {
@@ -42,17 +43,25 @@ namespace ICSharpCore.RequestHandlers
             var result = ctx.Console.Out.ToString()
                 .Split('\r', '\n')
                 .FirstOrDefault()?
-                .Substring(2);
-            var content = new ContentOfExecuteReplyOk
+                .Substring(4);
+            /*var content = new ContentOfExecuteReplyOk
             {
                 ExecutionCount = 1,
                 Payload = new List<Dictionary<string, string>>(),
                 UserExpressions = new Dictionary<string, string>()
+            };*/
+
+            var content = new DisplayData
+            {
+                Data = new JObject
+                {
+                    {"text/plain", result},
+                    { "text/html", result}
+                }
             };
+            iopub.Send(message, content, MessageType.DisplayData);
 
-            sender.Send(message, content, MessageType.ExecuteReply);
-
-            sender.Send(message, new ContentOfStatus { ExecutionState = Status.Idle }, MessageType.Status);
+            iopub.Send(message, new ContentOfStatus { ExecutionState = Status.Idle }, MessageType.Status);
         }
 
         private (ExecuteInteractiveCommand Command, ScriptConsole Console) GetExecuteInteractiveCommand(string[] commands)

@@ -57,6 +57,7 @@ namespace ICSharpCore.Protocols
             ParentHeader = JsonConvert.DeserializeObject<Header>(msg[4].ConvertToString());
             Metadata = JObject.FromObject(JsonConvert.DeserializeObject(msg[5].ConvertToString()));
             Content = JsonConvert.DeserializeObject<T>(msg[6].ConvertToString());
+            Buffer = new byte[0];
         }
     }
 }

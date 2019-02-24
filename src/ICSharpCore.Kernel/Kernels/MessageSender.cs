@@ -41,6 +41,8 @@ namespace ICSharpCore.Kernels
                 Content = content
             };
 
+            Console.WriteLine($"{msgType}: [{JsonConvert.SerializeObject(ioPubMessage.Content)}]");
+
             var encoder = new UTF8Encoding();
             List<string> messages = new List<string>();
             var signature = Sign(key, ioPubMessage, messages, iopub);
@@ -59,62 +61,6 @@ namespace ICSharpCore.Kernels
 
             return true;
         }
-
-        /*public bool SendStatus<T>(string key, Message<T> message, PublisherSocket iopub, string status)
-        {
-            // handle message
-            var encoder = new UTF8Encoding();
-            var hMAC = new HMACSHA256(encoder.GetBytes(key));
-            hMAC.Initialize();
-
-            var ioPubMessage = new Message<ContentOfStatus>
-            {
-                Identities = message.Identities,
-                Delimiter = message.Delimiter,
-                ParentHeader = message.Header,
-                Header = new Header()
-                {
-                    UserName = message.Header.UserName,
-                    Session = message.Header.Session,
-                    Date = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ"),
-                    MessageId = Guid.NewGuid().ToString(),
-                    MessageType = MessageType.Status,
-                    Version = message.Header.Version
-                },
-                Metadata = message.Metadata,
-                Content = new ContentOfStatus
-                {
-                    ExecutionState = status
-                }
-            };
-
-            // https://jupyter-client.readthedocs.io/en/stable/messaging.html#the-wire-protocol
-            List<string> messages = new List<string>();
-            messages.Add(JsonConvert.SerializeObject(ioPubMessage.Header));
-            messages.Add(JsonConvert.SerializeObject(ioPubMessage.ParentHeader));
-            messages.Add(JsonConvert.SerializeObject(ioPubMessage.Metadata));
-            messages.Add(JsonConvert.SerializeObject(ioPubMessage.Content));
-
-            // signature
-            foreach (string item in messages)
-            {
-                var sourceBytes = encoder.GetBytes(item);
-                hMAC.TransformBlock(sourceBytes, 0, sourceBytes.Length, null, 0);
-            }
-
-            hMAC.TransformFinalBlock(new byte[0], 0, 0);
-            var signature = BitConverter.ToString(hMAC.Hash).Replace("-", "").ToLower();
-
-            // send
-            iopub.SendFrame(ioPubMessage.Delimiter, true);
-            iopub.SendFrame(signature, true);
-            for (int i = 0; i < messages.Count; i++)
-            {
-                iopub.SendFrame(messages[i], i < messages.Count - 1);
-            }
-            
-            return true;
-        }*/
 
         private string Sign<T>(string key, Message<T> ioPubMessage, List<string> messages, PublisherSocket iopub)
         {

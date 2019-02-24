@@ -33,28 +33,28 @@ namespace ICSharpCore
             // https://netmq.readthedocs.io/en/latest/router-dealer/
             string serverAddress = $"@tcp://{conn.IP}:{conn.ShellPort}";
             string iopubAddress = $"@tcp://{conn.IP}:{conn.IOPubPort}";
-
+            
             using (var server = new RouterSocket(serverAddress))
             using (var iopub = new PublisherSocket(iopubAddress))
             using (var poller = new NetMQPoller())
             {
-                var sender = new MessageSender(conn.Key, iopub);
+                var iopubSender = new MessageSender(conn.Key, iopub);
 
                 // Handler for messages coming in to the frontend
                 server.ReceiveReady += (s, e) =>
                 {
                     var raw = e.Socket.ReceiveMultipartMessage();
-                    Console.WriteLine($"Received: {raw.ToString()}");
                     var header = JsonConvert.DeserializeObject<Header>(raw[3].ConvertToString());
+                    Console.WriteLine($"{header.MessageType}: [{raw.ToString()}]");
 
                     switch (header.MessageType)
                     {
                         case "kernel_info_request":
-                            new KernelInfoHandler<ContentOfKernelInfoRequest>(sender)
+                            new KernelInfoHandler<ContentOfKernelInfoRequest>(iopubSender)
                                 .Process(new Message<ContentOfKernelInfoRequest>(header, raw));
                             break;
                         case "execute_request":
-                            new ExecuteHandler<ContentOfExecuteRequest>(sender)
+                            new ExecuteHandler<ContentOfExecuteRequest>(iopubSender)
                                 .Process(new Message<ContentOfExecuteRequest>(header, raw));
                             break;
                     }
@@ -62,6 +62,10 @@ namespace ICSharpCore
 
                 poller.Add(server);
                 poller.RunAsync();
+
+                // var heartbeat = new HeartBeat(conn);
+                Console.WriteLine($"Listening Shell {serverAddress}");
+                Console.WriteLine($"Listening IOPub {iopubAddress}");
 
                 // hit CRTL+C to stop the while loop
                 while (!exit)

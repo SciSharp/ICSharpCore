@@ -29,7 +29,7 @@ namespace ICSharpCore.Protocols
         {
             Implementation = "ICSharpCore";
             ImplementationVersion = "0.1.0";
-            ProtocolVersion = "5.2";
+            ProtocolVersion = "5.3";
             LanguageInfo = new ContentOfLanguageInfo();
         }
     }
