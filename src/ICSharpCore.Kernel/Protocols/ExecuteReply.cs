@@ -8,7 +8,7 @@ namespace ICSharpCore.Protocols
     /// <summary>
     /// https://jupyter-client.readthedocs.io/en/stable/messaging.html#execution-results
     /// </summary>
-    public abstract class ContentOfExecuteReply
+    public abstract class ExecuteReply
     {
         [JsonProperty("status")]
         public string Status { get; set; }

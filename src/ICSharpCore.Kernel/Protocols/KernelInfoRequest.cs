@@ -7,7 +7,7 @@ namespace ICSharpCore.Protocols
     /// <summary>
     /// https://jupyter-client.readthedocs.io/en/stable/messaging.html#kernel-info
     /// </summary>
-    public class ContentOfKernelInfoRequest
+    public class KernelInfoRequest
     {
     }
 }

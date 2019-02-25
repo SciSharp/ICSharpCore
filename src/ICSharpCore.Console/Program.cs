@@ -29,6 +29,7 @@ namespace ICSharpCore
             // listening on the hb (heartbeat), 
             // control and shell sockets.
             var kernel = new Kernel(connInfo);
+            kernel.Start();
         }
     }
 }

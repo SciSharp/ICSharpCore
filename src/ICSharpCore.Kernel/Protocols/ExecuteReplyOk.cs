@@ -8,11 +8,11 @@ namespace ICSharpCore.Protocols
     /// <summary>
     /// https://jupyter-client.readthedocs.io/en/stable/messaging.html#execution-results
     /// </summary>
-    public class ContentOfExecuteReplyOk : ContentOfExecuteReply
+    public class ExecuteReplyOk : ExecuteReply
     {
-        public ContentOfExecuteReplyOk()
+        public ExecuteReplyOk()
         {
-            Status = Protocols.Status.Ok;
+            Status = Protocols.StatusType.Ok;
         }
 
         [JsonProperty("payload")]

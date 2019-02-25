@@ -11,8 +11,10 @@ namespace ICSharpCore.Protocols
     {
         /// <summary>
         /// zmq identity(ies)
+        /// http://ipython.org/ipython-doc/dev/development/messaging.html#the-wire-protocol
         /// </summary>
-        public string[] Identities { get; set; }
+        [JsonIgnoreAttribute]
+        public List<byte[]> Identifiers { get; set; }
 
         /// <summary>
         /// delimiter
@@ -41,7 +43,7 @@ namespace ICSharpCore.Protocols
         /// <summary>
         /// extra raw data buffer(s)
         /// </summary>
-        public byte[] Buffer { get; set; }
+        public List<byte[]> Buffers { get; set; }
 
         public Message()
         {
@@ -50,14 +52,18 @@ namespace ICSharpCore.Protocols
 
         public Message(Header header, NetMQMessage msg)
         {
-            Identities = msg[0].ConvertToString().Split(',');
+            Identifiers = new List<byte[]>
+            {
+                msg[0].Buffer
+            };
+
             Delimiter = msg[1].ConvertToString();
             Signature = msg[2].ConvertToString();
             Header = header;
             ParentHeader = JsonConvert.DeserializeObject<Header>(msg[4].ConvertToString());
             Metadata = JObject.FromObject(JsonConvert.DeserializeObject(msg[5].ConvertToString()));
             Content = JsonConvert.DeserializeObject<T>(msg[6].ConvertToString());
-            Buffer = new byte[0];
+            Buffers = new List<byte[]>();
         }
     }
 }

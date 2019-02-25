@@ -19,29 +19,38 @@ namespace ICSharpCore
     /// </summary>
     public class Kernel
     {
+        private ConnInfo _conn;
+        private string _shellAddress;
+        private string _iopubAddress;
+        private bool exit = false;
+
         public Kernel(ConnInfo conn)
         {
-            var exit = false;
+            _conn = conn;
+            // https://netmq.readthedocs.io/en/latest/router-dealer/
+            _shellAddress = $"@tcp://{conn.IP}:{conn.ShellPort}";
+            _iopubAddress = $"@tcp://{conn.IP}:{conn.IOPubPort}";
+        }
 
+        public void Start()
+        {
+            
             // catch CTRL+C as exit command
             Console.CancelKeyPress += (s, e) =>
             {
                 e.Cancel = true;
                 exit = true;
             };
-
-            // https://netmq.readthedocs.io/en/latest/router-dealer/
-            string serverAddress = $"@tcp://{conn.IP}:{conn.ShellPort}";
-            string iopubAddress = $"@tcp://{conn.IP}:{conn.IOPubPort}";
             
-            using (var server = new RouterSocket(serverAddress))
-            using (var iopub = new PublisherSocket(iopubAddress))
+            using (var shell = new RouterSocket(_shellAddress))
+            using (var iopub = new PublisherSocket(_iopubAddress))
             using (var poller = new NetMQPoller())
             {
-                var iopubSender = new MessageSender(conn.Key, iopub);
+                var iopubSender = new MessageSender(_conn.Key, iopub);
+                var shellSender = new MessageSender(_conn.Key, shell);
 
                 // Handler for messages coming in to the frontend
-                server.ReceiveReady += (s, e) =>
+                shell.ReceiveReady += (s, e) =>
                 {
                     var raw = e.Socket.ReceiveMultipartMessage();
                     var header = JsonConvert.DeserializeObject<Header>(raw[3].ConvertToString());
@@ -50,22 +59,22 @@ namespace ICSharpCore
                     switch (header.MessageType)
                     {
                         case "kernel_info_request":
-                            new KernelInfoHandler<ContentOfKernelInfoRequest>(iopubSender)
-                                .Process(new Message<ContentOfKernelInfoRequest>(header, raw));
+                            new KernelInfoHandler<KernelInfoRequest>(iopubSender, shellSender)
+                                .Process(new Message<KernelInfoRequest>(header, raw));
                             break;
                         case "execute_request":
-                            new ExecuteHandler<ContentOfExecuteRequest>(iopubSender)
-                                .Process(new Message<ContentOfExecuteRequest>(header, raw));
+                            new ExecuteHandler<ExecuteRequest>(iopubSender, shellSender)
+                                .Process(new Message<ExecuteRequest>(header, raw));
                             break;
                     }
                 };
 
-                poller.Add(server);
+                poller.Add(shell);
                 poller.RunAsync();
 
                 // var heartbeat = new HeartBeat(conn);
-                Console.WriteLine($"Listening Shell {serverAddress}");
-                Console.WriteLine($"Listening IOPub {iopubAddress}");
+                Console.WriteLine($"Listening Shell {_shellAddress}");
+                Console.WriteLine($"Listening IOPub {_iopubAddress}");
 
                 // hit CRTL+C to stop the while loop
                 while (!exit)

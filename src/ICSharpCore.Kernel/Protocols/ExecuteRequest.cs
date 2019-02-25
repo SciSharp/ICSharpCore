@@ -6,7 +6,7 @@ using System.Text;
 
 namespace ICSharpCore.Protocols
 {
-    public class ContentOfExecuteRequest
+    public class ExecuteRequest
     {
         public string Code { get; set; }
 

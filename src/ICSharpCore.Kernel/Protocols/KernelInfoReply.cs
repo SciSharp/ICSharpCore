@@ -8,7 +8,7 @@ namespace ICSharpCore.Protocols
     /// <summary>
     /// https://jupyter-client.readthedocs.io/en/stable/messaging.html#kernel-info
     /// </summary>
-    public class ContentOfKernelInfoReply
+    public class KernelInfoReply
     {
         [JsonProperty("protocol_version")]
         public string ProtocolVersion { get; set; }
@@ -20,17 +20,17 @@ namespace ICSharpCore.Protocols
         public string ImplementationVersion { get; set; }
 
         [JsonProperty("language_info")]
-        public ContentOfLanguageInfo LanguageInfo { get; set; }
+        public LanguageInfo LanguageInfo { get; set; }
 
         [JsonProperty("banner")]
         public string Banner { get; set; }
 
-        public ContentOfKernelInfoReply()
+        public KernelInfoReply()
         {
             Implementation = "ICSharpCore";
             ImplementationVersion = "0.1.0";
             ProtocolVersion = "5.3";
-            LanguageInfo = new ContentOfLanguageInfo();
+            LanguageInfo = new LanguageInfo();
         }
     }
 }

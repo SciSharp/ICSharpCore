@@ -13,9 +13,9 @@ namespace ICSharpCore.Kernels
     public class MessageSender
     {
         private string key;
-        private PublisherSocket iopub;
+        private NetMQSocket iopub;
 
-        public MessageSender(string key, PublisherSocket iopub)
+        public MessageSender(string key, NetMQSocket iopub)
         {
             this.key = key;
             this.iopub = iopub;
@@ -25,7 +25,7 @@ namespace ICSharpCore.Kernels
         {
             var ioPubMessage = new Message<C>
             {
-                Identities = request.Identities,
+                Identifiers = request.Identifiers,
                 Delimiter = request.Delimiter,
                 ParentHeader = request.Header,
                 Header = new Header()
@@ -48,21 +48,19 @@ namespace ICSharpCore.Kernels
             var signature = Sign(key, ioPubMessage, messages, iopub);
 
             // send
-            foreach (var id in request.Identities)
-            {
-                iopub.TrySendFrame(encoder.GetBytes(id), true);
-            }
+            foreach (var id in request.Identifiers)
+                iopub.TrySendFrame(id, true);
+            
             iopub.SendFrame(ioPubMessage.Delimiter, true);
             iopub.SendFrame(signature, true);
+
             for (int i = 0; i < messages.Count; i++)
-            {
                 iopub.SendFrame(messages[i], i < messages.Count - 1);
-            }
 
             return true;
         }
 
-        private string Sign<T>(string key, Message<T> ioPubMessage, List<string> messages, PublisherSocket iopub)
+        private string Sign<T>(string key, Message<T> ioPubMessage, List<string> messages, NetMQSocket iopub)
         {
             var encoder = new UTF8Encoding();
             var hMAC = new HMACSHA256(encoder.GetBytes(key));

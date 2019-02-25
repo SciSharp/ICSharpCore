@@ -10,22 +10,24 @@ using System.Text;
 
 namespace ICSharpCore.RequestHandlers
 {
-    public class KernelInfoHandler<T> : IRequestHandler<T> where T : ContentOfKernelInfoRequest
+    public class KernelInfoHandler<T> : IRequestHandler<T> where T : KernelInfoRequest
     {
-        private MessageSender sender;
+        private MessageSender ioPub;
+        private MessageSender shell;
 
-        public KernelInfoHandler(MessageSender sender)
+        public KernelInfoHandler(MessageSender ioPub, MessageSender shell)
         {
-            this.sender = sender;
+            this.ioPub = ioPub;
+            this.shell = shell;
         }
 
         public void Process(Message<T> message)
         {
-            sender.Send(message, new ContentOfStatus { ExecutionState = Status.Busy }, MessageType.Status);
+            ioPub.Send(message, new Status { ExecutionState = StatusType.Busy }, MessageType.Status);
 
-            sender.Send(message, new ContentOfKernelInfoReply(), MessageType.KernelInfoReply);
+            shell.Send(message, new KernelInfoReply(), MessageType.KernelInfoReply);
 
-            sender.Send(message, new ContentOfStatus { ExecutionState = Status.Idle }, MessageType.Status);
+            ioPub.Send(message, new Status { ExecutionState = StatusType.Idle }, MessageType.Status);
         }
     }
 }

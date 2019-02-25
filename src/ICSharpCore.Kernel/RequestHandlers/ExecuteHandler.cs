@@ -18,18 +18,20 @@ using System.Threading;
 
 namespace ICSharpCore.RequestHandlers
 {
-    public class ExecuteHandler<T> : IRequestHandler<T> where T : ContentOfExecuteRequest
+    public class ExecuteHandler<T> : IRequestHandler<T> where T : ExecuteRequest
     {
-        private MessageSender iopub;
+        private MessageSender ioPub;
+        private MessageSender shell;
 
-        public ExecuteHandler(MessageSender sender)
+        public ExecuteHandler(MessageSender ioPub, MessageSender shell)
         {
-            this.iopub = sender;
+            this.ioPub = ioPub;
+            this.shell = shell;
         }
 
         public async void Process(Message<T> message)
         {
-            iopub.Send(message, new ContentOfStatus { ExecutionState = Status.Busy }, MessageType.Status);
+            ioPub.Send(message, new Status { ExecutionState = StatusType.Busy }, MessageType.Status);
 
             var commands = new[]
             {
@@ -59,9 +61,9 @@ namespace ICSharpCore.RequestHandlers
                     { "text/html", result}
                 }
             };
-            iopub.Send(message, content, MessageType.DisplayData);
+            ioPub.Send(message, content, MessageType.DisplayData);
 
-            iopub.Send(message, new ContentOfStatus { ExecutionState = Status.Idle }, MessageType.Status);
+            ioPub.Send(message, new Status { ExecutionState = StatusType.Idle }, MessageType.Status);
         }
 
         private (ExecuteInteractiveCommand Command, ScriptConsole Console) GetExecuteInteractiveCommand(string[] commands)
