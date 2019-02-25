@@ -23,6 +23,8 @@ namespace ICSharpCore
         private string _shellAddress;
         private string _iopubAddress;
         private bool exit = false;
+        private KernelInfoHandler<KernelInfoRequest> kernelInfoHandler;
+        private ExecuteHandler<ExecuteRequest> executeHandler;
 
         public Kernel(ConnInfo conn)
         {
@@ -34,7 +36,6 @@ namespace ICSharpCore
 
         public void Start()
         {
-            
             // catch CTRL+C as exit command
             Console.CancelKeyPress += (s, e) =>
             {
@@ -48,6 +49,8 @@ namespace ICSharpCore
             {
                 var iopubSender = new MessageSender(_conn.Key, iopub);
                 var shellSender = new MessageSender(_conn.Key, shell);
+                kernelInfoHandler = new KernelInfoHandler<KernelInfoRequest>(iopubSender, shellSender);
+                executeHandler = new ExecuteHandler<ExecuteRequest>(iopubSender, shellSender);
 
                 // Handler for messages coming in to the frontend
                 shell.ReceiveReady += (s, e) =>
@@ -59,12 +62,22 @@ namespace ICSharpCore
                     switch (header.MessageType)
                     {
                         case "kernel_info_request":
-                            new KernelInfoHandler<KernelInfoRequest>(iopubSender, shellSender)
-                                .Process(new Message<KernelInfoRequest>(header, raw));
+                            {
+                                var message = new Message<KernelInfoRequest>(header, raw);
+                                iopubSender.Send(message, 
+                                    new Status { ExecutionState = StatusType.Busy }, 
+                                    MessageType.Status);
+                                kernelInfoHandler.Process(message);
+                            }
                             break;
                         case "execute_request":
-                            new ExecuteHandler<ExecuteRequest>(iopubSender, shellSender)
-                                .Process(new Message<ExecuteRequest>(header, raw));
+                            {
+                                var message = new Message<ExecuteRequest>(header, raw);
+                                iopubSender.Send(message,
+                                    new Status { ExecutionState = StatusType.Busy },
+                                    MessageType.Status);
+                                executeHandler.Process(message);
+                            }
                             break;
                     }
                 };

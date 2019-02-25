@@ -22,6 +22,7 @@ namespace ICSharpCore.RequestHandlers
     {
         private MessageSender ioPub;
         private MessageSender shell;
+        private int executionCount = 0;
 
         public ExecuteHandler(MessageSender ioPub, MessageSender shell)
         {
@@ -31,12 +32,9 @@ namespace ICSharpCore.RequestHandlers
 
         public async void Process(Message<T> message)
         {
-            ioPub.Send(message, new Status { ExecutionState = StatusType.Busy }, MessageType.Status);
-
             var commands = new[]
             {
-                message.Content.Code,
-                "#exit"
+                message.Content.Code
             };
 
             var ctx = GetExecuteInteractiveCommand(commands);
@@ -46,24 +44,26 @@ namespace ICSharpCore.RequestHandlers
                 .Split('\r', '\n')
                 .FirstOrDefault()?
                 .Substring(4);
-            /*var content = new ContentOfExecuteReplyOk
-            {
-                ExecutionCount = 1,
-                Payload = new List<Dictionary<string, string>>(),
-                UserExpressions = new Dictionary<string, string>()
-            };*/
 
+            // send execute result message to IOPub
             var content = new DisplayData
             {
                 Data = new JObject
                 {
                     {"text/plain", result},
-                    { "text/html", result}
+                    {"text/html", result}
                 }
             };
             ioPub.Send(message, content, MessageType.DisplayData);
 
-            ioPub.Send(message, new Status { ExecutionState = StatusType.Idle }, MessageType.Status);
+            // send execute reply to shell socket
+            var executeReply = new ExecuteReplyOk
+            {
+                ExecutionCount = executionCount++,
+                Payload = new List<Dictionary<string, string>>(),
+                UserExpressions = new Dictionary<string, string>()
+            };
+            shell.Send(message, executeReply, MessageType.ExecuteReply);
         }
 
         private (ExecuteInteractiveCommand Command, ScriptConsole Console) GetExecuteInteractiveCommand(string[] commands)
@@ -71,7 +71,7 @@ namespace ICSharpCore.RequestHandlers
             var reader = new StringReader(string.Join(Environment.NewLine, commands));
             var writer = new StringWriter();
             var error = new StringWriter();
-
+            
             var console = new ScriptConsole(writer, reader, error);
             LogFactory logFactory = CreateLogFactory();
             return (new ExecuteInteractiveCommand(console, logFactory), console);

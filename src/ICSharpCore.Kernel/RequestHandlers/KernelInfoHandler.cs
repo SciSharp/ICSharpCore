@@ -23,11 +23,7 @@ namespace ICSharpCore.RequestHandlers
 
         public void Process(Message<T> message)
         {
-            ioPub.Send(message, new Status { ExecutionState = StatusType.Busy }, MessageType.Status);
-
             shell.Send(message, new KernelInfoReply(), MessageType.KernelInfoReply);
-
-            ioPub.Send(message, new Status { ExecutionState = StatusType.Idle }, MessageType.Status);
         }
     }
 }
