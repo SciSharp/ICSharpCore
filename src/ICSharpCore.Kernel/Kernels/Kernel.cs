@@ -25,7 +25,7 @@ namespace ICSharpCore
         private bool exit = false;
         private KernelInfoHandler<KernelInfoRequest> kernelInfoHandler;
         private ExecuteHandler<ExecuteRequest> executeHandler;
-
+        
         public Kernel(ConnInfo conn)
         {
             _conn = conn;

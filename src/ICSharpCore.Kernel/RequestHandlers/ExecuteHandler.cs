@@ -15,6 +15,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace ICSharpCore.RequestHandlers
 {
@@ -23,28 +24,24 @@ namespace ICSharpCore.RequestHandlers
         private MessageSender ioPub;
         private MessageSender shell;
         private int executionCount = 0;
+        private InteractiveRunner runner;
+        private ScriptConsole console;
+        private int outputOffset;
 
         public ExecuteHandler(MessageSender ioPub, MessageSender shell)
         {
             this.ioPub = ioPub;
             this.shell = shell;
+
+            GetExecuteInteractiveCommand();
         }
 
         public async void Process(Message<T> message)
         {
-            var commands = new[]
-            {
-                message.Content.Code
-            };
+            await runner.Execute(message.Content.Code);
 
-            var ctx = GetExecuteInteractiveCommand(commands);
-            await ctx.Command.Execute(new ExecuteInteractiveCommandOptions(null, null, null));
-
-            var result = ctx.Console.Out.ToString()
-                .Split('\r', '\n')
-                .FirstOrDefault()?
-                .Substring(4);
-
+            var result = console.Out.ToString().Substring(outputOffset);
+            outputOffset += result.Length;
             // send execute result message to IOPub
             var content = new DisplayData
             {
@@ -63,18 +60,21 @@ namespace ICSharpCore.RequestHandlers
                 Payload = new List<Dictionary<string, string>>(),
                 UserExpressions = new Dictionary<string, string>()
             };
+
             shell.Send(message, executeReply, MessageType.ExecuteReply);
         }
 
-        private (ExecuteInteractiveCommand Command, ScriptConsole Console) GetExecuteInteractiveCommand(string[] commands)
+        private void GetExecuteInteractiveCommand()
         {
-            var reader = new StringReader(string.Join(Environment.NewLine, commands));
+            var reader = new StringReader(Environment.NewLine);
             var writer = new StringWriter();
             var error = new StringWriter();
-            
-            var console = new ScriptConsole(writer, reader, error);
-            LogFactory logFactory = CreateLogFactory();
-            return (new ExecuteInteractiveCommand(console, logFactory), console);
+
+            console = new ScriptConsole(writer, reader, error);
+
+            var _logFactory = CreateLogFactory();
+            var compiler = new ScriptCompiler(_logFactory, useRestoreCache: false);
+            runner = new InteractiveRunner(compiler, _logFactory, console, new string[0]);
         }
 
         private static LogFactory CreateLogFactory()
