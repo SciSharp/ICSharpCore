@@ -1,6 +1,7 @@
 ﻿using ICSharpCore.Kernels;
 using ICSharpCore.Protocols;
 using ICSharpCore.RequestHandlers;
+using Microsoft.Extensions.Logging;
 using NetMQ;
 using NetMQ.Sockets;
 using Newtonsoft.Json;
@@ -25,13 +26,15 @@ namespace ICSharpCore
         private bool exit = false;
         private KernelInfoHandler<KernelInfoRequest> kernelInfoHandler;
         private ExecuteHandler<ExecuteRequest> executeHandler;
+        private ILoggerFactory _loggerFactory;
         
-        public Kernel(ConnInfo conn)
+        public Kernel(ConnInfo conn, ILoggerFactory loggerFactory)
         {
             _conn = conn;
             // https://netmq.readthedocs.io/en/latest/router-dealer/
             _shellAddress = $"@tcp://{conn.IP}:{conn.ShellPort}";
             _iopubAddress = $"@tcp://{conn.IP}:{conn.IOPubPort}";
+            _loggerFactory = loggerFactory;
         }
 
         public void Start()
@@ -50,7 +53,7 @@ namespace ICSharpCore
                 var iopubSender = new MessageSender(_conn.Key, iopub);
                 var shellSender = new MessageSender(_conn.Key, shell);
                 kernelInfoHandler = new KernelInfoHandler<KernelInfoRequest>(iopubSender, shellSender);
-                executeHandler = new ExecuteHandler<ExecuteRequest>(iopubSender, shellSender);
+                executeHandler = new ExecuteHandler<ExecuteRequest>(iopubSender, shellSender, _loggerFactory);
 
                 // Handler for messages coming in to the frontend
                 shell.ReceiveReady += (s, e) =>

@@ -1,9 +1,8 @@
-﻿using Dotnet.Script.Core;
-using Dotnet.Script.Core.Commands;
-using Dotnet.Script.DependencyModel.Logging;
-using ICSharpCore.Kernels;
+﻿using ICSharpCore.Kernels;
 using ICSharpCore.Protocols;
 using ICSharpCore.RequestHandlers;
+using ICSharpCore.Script;
+using Microsoft.Extensions.Logging;
 using NetMQ;
 using NetMQ.Sockets;
 using Newtonsoft.Json;
@@ -24,24 +23,36 @@ namespace ICSharpCore.RequestHandlers
         private MessageSender ioPub;
         private MessageSender shell;
         private int executionCount = 0;
-        private InteractiveRunner runner;
-        private ScriptConsole console;
-        private int outputOffset;
+        private InteractiveScriptEngine scriptEngine;
+        private ILogger logger;
 
-        public ExecuteHandler(MessageSender ioPub, MessageSender shell)
+        public ExecuteHandler(MessageSender ioPub, MessageSender shell, ILoggerFactory loggerFactory)
         {
             this.ioPub = ioPub;
             this.shell = shell;
-
-            GetExecuteInteractiveCommand();
+            this.scriptEngine = new InteractiveScriptEngine(AppContext.BaseDirectory, loggerFactory.CreateLogger(nameof(InteractiveScriptEngine)));
+            this.logger = loggerFactory.CreateLogger(nameof(ExecuteHandler<T>));
         }
 
         public async void Process(Message<T> message)
         {
-            await runner.Execute(message.Content.Code);
+            string result = null;
 
-            var result = console.Out.ToString().Substring(outputOffset);
-            outputOffset += result.Length;
+            try
+            {
+                result = await scriptEngine.ExecuteAsync(message.Content.Code);
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e, "Failed to run the code: " + message.Content.Code);
+                return;
+            }            
+
+            if (string.IsNullOrEmpty(result))
+            {
+                return;
+            }
+
             // send execute result message to IOPub
             var content = new DisplayData
             {
@@ -62,26 +73,6 @@ namespace ICSharpCore.RequestHandlers
             };
 
             shell.Send(message, executeReply, MessageType.ExecuteReply);
-        }
-
-        private void GetExecuteInteractiveCommand()
-        {
-            var reader = new StringReader(Environment.NewLine);
-            var writer = new StringWriter();
-            var error = new StringWriter();
-
-            console = new ScriptConsole(writer, reader, error);
-
-            var _logFactory = CreateLogFactory();
-            var compiler = new ScriptCompiler(_logFactory, useRestoreCache: false);
-            runner = new InteractiveRunner(compiler, _logFactory, console, new string[0]);
-        }
-
-        private static LogFactory CreateLogFactory()
-        {
-            return type => (level, message, exception) =>
-            {
-            };
         }
     }
 }
