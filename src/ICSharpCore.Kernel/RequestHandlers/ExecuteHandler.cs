@@ -2,6 +2,7 @@
 using ICSharpCore.Protocols;
 using ICSharpCore.RequestHandlers;
 using ICSharpCore.Script;
+using Microsoft.Extensions.Logging;
 using NetMQ;
 using NetMQ.Sockets;
 using Newtonsoft.Json;
@@ -23,25 +24,34 @@ namespace ICSharpCore.RequestHandlers
         private MessageSender shell;
         private int executionCount = 0;
         private InteractiveScriptEngine scriptEngine;
+        private ILogger logger;
 
-        public ExecuteHandler(MessageSender ioPub, MessageSender shell)
+        public ExecuteHandler(MessageSender ioPub, MessageSender shell, ILoggerFactory loggerFactory)
         {
             this.ioPub = ioPub;
             this.shell = shell;
-            this.scriptEngine = new InteractiveScriptEngine();
+            this.scriptEngine = new InteractiveScriptEngine(AppContext.BaseDirectory, loggerFactory.CreateLogger(nameof(InteractiveScriptEngine)));
+            this.logger = loggerFactory.CreateLogger(nameof(ExecuteHandler<T>));
         }
 
         public async void Process(Message<T> message)
         {
-            var executeResult = await scriptEngine.ExecuteAsync(message.Content.Code);
+            string result = null;
 
-            if (executeResult == null)
+            try
             {
-                // nothing?
+                result = await scriptEngine.ExecuteAsync(message.Content.Code);
+            }
+            catch (Exception e)
+            {
+                logger.LogError("Failed to run the code: " + message.Content.Code, e);
+                return;
+            }            
+
+            if (string.IsNullOrEmpty(result))
+            {
                 return;
             }
-
-            var result = executeResult.ToString();
 
             // send execute result message to IOPub
             var content = new DisplayData

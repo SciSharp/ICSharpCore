@@ -1,4 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
+using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Linq;
@@ -9,6 +12,14 @@ namespace ICSharpCore
     {
         public static void Main(string[] args)
         {
+            // We introduced DependencyInjection only for logging;
+            // It is not needed in .NET Core 3.0
+            IServiceCollection serviceCollection = new ServiceCollection();            
+            serviceCollection.AddLogging(builder => builder.AddConsole());
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            var loggerFactory = serviceProvider.GetService<ILoggerFactory>();
+
             // Connection files
 
             // When Jupyter starts a kernel, it passes it a connection file.
@@ -28,7 +39,7 @@ namespace ICSharpCore
             // the kernel should go into an event loop, 
             // listening on the hb (heartbeat), 
             // control and shell sockets.
-            var kernel = new Kernel(connInfo);
+            var kernel = new Kernel(connInfo, loggerFactory);
             kernel.Start();
         }
     }
