@@ -79,7 +79,7 @@ namespace ICSharpCore.Script
             }
             else
             {
-                scriptState = await scriptState.ContinueWithAsync(statement);
+                scriptState = await scriptState.ContinueWithAsync(statement, scriptOptions);
             }
 
             if (scriptState.ReturnValue == null)
