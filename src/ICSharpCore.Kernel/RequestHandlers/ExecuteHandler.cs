@@ -44,7 +44,7 @@ namespace ICSharpCore.RequestHandlers
             }
             catch (Exception e)
             {
-                logger.LogError("Failed to run the code: " + message.Content.Code, e);
+                logger.LogError(e, "Failed to run the code: " + message.Content.Code);
                 return;
             }            
 
