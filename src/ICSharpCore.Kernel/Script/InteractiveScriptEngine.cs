@@ -75,7 +75,8 @@ namespace ICSharpCore.Script
 
             if (scriptState == null)
             {
-                scriptState = await CSharpScript.RunAsync(statement, scriptOptions, globals: globals);
+                scriptState = await CSharpScript.RunAsync("using Console = ICSharpCore.Script.FakeConsole;", scriptOptions, globals: globals);
+                scriptState = await scriptState.ContinueWithAsync(statement, scriptOptions);
             }
             else
             {
@@ -146,7 +147,8 @@ namespace ICSharpCore.Script
                     systemCore,
                     Assembly.GetAssembly(typeof(System.Dynamic.DynamicObject)),// System.Code
                     Assembly.GetAssembly(typeof(Microsoft.CSharp.RuntimeBinder.CSharpArgumentInfo)),// Microsoft.CSharp
-                    Assembly.GetAssembly(typeof(System.Dynamic.ExpandoObject))// System.Dynamic
+                    Assembly.GetAssembly(typeof(System.Dynamic.ExpandoObject)),// System.Dynamic
+                    Assembly.GetAssembly(typeof(FakeConsole)) //ICSharpCore
                 };
 
             options = options.AddReferences(references);
