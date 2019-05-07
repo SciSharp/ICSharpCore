@@ -34,6 +34,20 @@ namespace ICSharpCore.RequestHandlers
             this.logger = loggerFactory.CreateLogger(nameof(ExecuteHandler<T>));
         }
 
+        private void SendErrorMessage(Message<T> message, string error)
+        {
+            var content = new DisplayData
+            {
+                Data = new JObject
+                {
+                    { "text/plain", error},
+                    { "text/html", $"<p style=\"color:red;\">{error}</p>"}
+                }
+            };
+
+            ioPub.Send(message, content, MessageType.DisplayData);
+        }
+
         public async void Process(Message<T> message)
         {
             string result = null;
@@ -45,8 +59,9 @@ namespace ICSharpCore.RequestHandlers
             catch (Exception e)
             {
                 logger.LogError(e, "Failed to run the code: " + message.Content.Code);
+                SendErrorMessage(message, e.Message + Environment.NewLine + e.StackTrace);
                 return;
-            }            
+            }
 
             if (string.IsNullOrEmpty(result))
             {
@@ -62,6 +77,7 @@ namespace ICSharpCore.RequestHandlers
                     {"text/html", result}
                 }
             };
+
             ioPub.Send(message, content, MessageType.DisplayData);
 
             // send execute reply to shell socket
