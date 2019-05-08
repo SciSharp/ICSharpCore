@@ -16,6 +16,21 @@ namespace ICSharpCore.Script
             OnLineReceived(string.Format(format, args));
         }
 
+        public static void WriteLine(char[] buffer, int index, int count)
+        {
+            OnLineReceived(new string(buffer, index, count));
+        }
+
+        public static void WriteLine(char[] buffer)
+        {
+            OnLineReceived(new string(buffer));
+        }
+
+        public static void WriteLine(char value)
+        {
+            OnLineReceived(value.ToString());
+        }
+
         public static Action<string> LineHandler { get; set; }
 
         private static void OnLineReceived(string line)
