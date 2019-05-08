@@ -48,12 +48,32 @@ namespace ICSharpCore.RequestHandlers
             ioPub.Send(message, content, MessageType.DisplayData);
         }
 
+        private void SendDisplayData(Message<T> message, string text)
+        {
+            // send execute result message to IOPub
+            var content = new DisplayData
+            {
+                Data = new JObject
+                {
+                    { "text/plain", text },
+                    { "text/html", text }
+                }
+            };
+
+            ioPub.Send(message, content, MessageType.DisplayData);
+        }
+
         public async void Process(Message<T> message)
         {
             string result = null;
 
             try
             {
+                FakeConsole.LineHandler = (line) =>
+                {
+                    SendDisplayData(message, line);
+                };
+
                 result = await scriptEngine.ExecuteAsync(message.Content.Code);
             }
             catch (Exception e)
@@ -62,23 +82,17 @@ namespace ICSharpCore.RequestHandlers
                 SendErrorMessage(message, e.Message + Environment.NewLine + e.StackTrace);
                 return;
             }
+            finally
+            {
+                FakeConsole.LineHandler = null;
+            }
 
             if (string.IsNullOrEmpty(result))
             {
                 return;
             }
 
-            // send execute result message to IOPub
-            var content = new DisplayData
-            {
-                Data = new JObject
-                {
-                    {"text/plain", result},
-                    {"text/html", result}
-                }
-            };
-
-            ioPub.Send(message, content, MessageType.DisplayData);
+            SendDisplayData(message, result);
 
             // send execute reply to shell socket
             var executeReply = new ExecuteReplyOk
