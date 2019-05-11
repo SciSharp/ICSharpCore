@@ -32,5 +32,21 @@ namespace ICSharpCore.Protocols
             MetaData = new JObject();
             Transient = new JObject();
         }
+
+        public DisplayData(string text)
+            : this(text, text)
+        {
+            
+        }
+
+        public DisplayData(string text, string html)
+            : this()
+        {
+            Data = new JObject
+            {
+                { "text/plain", text },
+                { "text/html", html }
+            };
+        }
     }
 }

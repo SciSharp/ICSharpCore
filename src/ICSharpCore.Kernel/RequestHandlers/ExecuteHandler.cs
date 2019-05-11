@@ -51,27 +51,19 @@ namespace ICSharpCore.RequestHandlers
         private void SendDisplayData(Message<T> message, string text)
         {
             // send execute result message to IOPub
-            var content = new DisplayData
-            {
-                Data = new JObject
-                {
-                    { "text/plain", text },
-                    { "text/html", text }
-                }
-            };
-
+            var content = new DisplayData(text);
             ioPub.Send(message, content, MessageType.DisplayData);
         }
 
         public async void Process(Message<T> message)
         {
-            string result = null;
+            object result = null;
 
             try
             {
                 FakeConsole.LineHandler = (line) =>
                 {
-                    SendDisplayData(message, line);
+                    ioPub.Send(message, new DisplayData(line), MessageType.DisplayData);
                 };
 
                 result = await scriptEngine.ExecuteAsync(message.Content.Code);
@@ -79,7 +71,9 @@ namespace ICSharpCore.RequestHandlers
             catch (Exception e)
             {
                 logger.LogError(e, "Failed to run the code: " + message.Content.Code);
-                SendErrorMessage(message, e.Message + Environment.NewLine + e.StackTrace);
+
+                var error = e.Message + Environment.NewLine + e.StackTrace;
+                ioPub.Send(message, new DisplayData(error, $"<p style=\"color:red;\">{error}</p>"), MessageType.DisplayData);
                 return;
             }
             finally
@@ -87,12 +81,12 @@ namespace ICSharpCore.RequestHandlers
                 FakeConsole.LineHandler = null;
             }
 
-            if (string.IsNullOrEmpty(result))
+            if (result == null)
             {
                 return;
             }
 
-            SendDisplayData(message, result);
+            ioPub.Send(message, result, MessageType.DisplayData);
 
             // send execute reply to shell socket
             var executeReply = new ExecuteReplyOk

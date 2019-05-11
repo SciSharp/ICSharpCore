@@ -41,6 +41,8 @@ namespace ICSharpCore.Kernels
                 Content = content
             };
 
+            
+
             Console.WriteLine($"{msgType}: [{JsonConvert.SerializeObject(ioPubMessage.Content)}]");
 
             var encoder = new UTF8Encoding();

@@ -8,12 +8,14 @@ using System.Threading.Tasks;
 using Dotnet.Script.DependencyModel.Context;
 using Dotnet.Script.DependencyModel.NuGet;
 using Dotnet.Script.DependencyModel.Runtime;
+using ICSharpCore.Protocols;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.CSharp.Scripting.Hosting;
 using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.CodeAnalysis.Scripting.Hosting;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 using ScriptLogLevel = Dotnet.Script.DependencyModel.Logging.LogLevel;
 
 namespace ICSharpCore.Script
@@ -69,7 +71,7 @@ namespace ICSharpCore.Script
             }
         }
 
-        public async Task<string> ExecuteAsync(string statement)
+        public async Task<object> ExecuteAsync(string statement)
         {
             statement = PrepareStatement(statement);
 
@@ -86,15 +88,20 @@ namespace ICSharpCore.Script
             if (scriptState.ReturnValue == null)
                 return string.Empty;
 
+            var displayData = scriptState.ReturnValue as JObject;
+
+            if (displayData != null)
+                return displayData;
+
             globals.Print(scriptState.ReturnValue);
 
             var output = interactiveOutput.ToString();
             interactiveOutput.Clear();
 
-            return output;
+            return new DisplayData(output);
         }
 
-        public string Execute(string statement)
+        public object Execute(string statement)
         {
             return ExecuteAsync(statement).Result;
         }
@@ -104,7 +111,7 @@ namespace ICSharpCore.Script
             if (!statement.StartsWith("#r ") && !statement.StartsWith("#load "))
                 return false;
 
-            var lineRuntimeDependencies = runtimeDependencyResolver.GetDependencies(currentDirectory, ScriptMode.REPL, new string[0], statement);
+            var lineRuntimeDependencies = runtimeDependencyResolver.GetDependenciesForCode(currentDirectory, ScriptMode.REPL, new string[0], statement);
             var lineDependencies = lineRuntimeDependencies.SelectMany(rtd => rtd.Assemblies).Distinct();
             var scriptMap = lineRuntimeDependencies.ToDictionary(rdt => rdt.Name, rdt => rdt.Scripts);
 
