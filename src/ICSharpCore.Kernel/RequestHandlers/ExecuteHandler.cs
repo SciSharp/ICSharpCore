@@ -34,27 +34,6 @@ namespace ICSharpCore.RequestHandlers
             this.logger = loggerFactory.CreateLogger(nameof(ExecuteHandler<T>));
         }
 
-        private void SendErrorMessage(Message<T> message, string error)
-        {
-            var content = new DisplayData
-            {
-                Data = new JObject
-                {
-                    { "text/plain", error},
-                    { "text/html", $"<p style=\"color:red;\">{error}</p>"}
-                }
-            };
-
-            ioPub.Send(message, content, MessageType.DisplayData);
-        }
-
-        private void SendDisplayData(Message<T> message, string text)
-        {
-            // send execute result message to IOPub
-            var content = new DisplayData(text);
-            ioPub.Send(message, content, MessageType.DisplayData);
-        }
-
         public async void Process(Message<T> message)
         {
             object result = null;
