@@ -12,18 +12,18 @@ namespace ICSharpCore.RequestHandlers
 {
     public class KernelInfoHandler<T> : IRequestHandler<T> where T : KernelInfoRequest
     {
-        private MessageSender ioPub;
-        private MessageSender shell;
+        private MessageSender _ioPub;
+        private MessageSender _shell;
 
         public KernelInfoHandler(MessageSender ioPub, MessageSender shell)
         {
-            this.ioPub = ioPub;
-            this.shell = shell;
+            _ioPub = ioPub;
+            _shell = shell;
         }
 
         public void Process(Message<T> message)
         {
-            shell.Send(message, new KernelInfoReply(), MessageType.KernelInfoReply);
+            _shell.Send(message, new KernelInfoReply(), MessageType.KernelInfoReply);
         }
     }
 }

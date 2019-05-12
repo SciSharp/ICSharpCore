@@ -22,34 +22,34 @@ namespace ICSharpCore.Script
 {
     public class InteractiveScriptEngine
     {
-        private ScriptState<object> scriptState;
+        private ScriptState<object> _scriptState;
 
-        private ScriptOptions scriptOptions;
+        private ScriptOptions _scriptOptions;
 
-        private InteractiveScriptGlobals globals;
+        private InteractiveScriptGlobals _globals;
 
-        private StringBuilder interactiveOutput;
+        private StringBuilder _interactiveOutput;
 
-        private RuntimeDependencyResolver runtimeDependencyResolver;
+        private RuntimeDependencyResolver _runtimeDependencyResolver;
 
-        private ILogger logger;
+        private ILogger _logger;
 
-        private string currentDirectory;
+        private string _currentDirectory;
 
         public InteractiveScriptEngine(string currentDir, ILogger logger)
         {
-            this.currentDirectory = currentDir;
-            this.logger = logger;
+            _currentDirectory = currentDir;
+            _logger = logger;
 
-            this.scriptOptions = CreateScriptOptions();
+            _scriptOptions = CreateScriptOptions();
 
-            this.runtimeDependencyResolver = new RuntimeDependencyResolver((t) => (level, m, e) =>
+            _runtimeDependencyResolver = new RuntimeDependencyResolver((t) => (level, m, e) =>
             {
                 logger.Log(MapLogLevel(level), m, e);
             }, true);
 
-            interactiveOutput = new StringBuilder();
-            globals = new InteractiveScriptGlobals(new StringWriter(interactiveOutput), CSharpObjectFormatter.Instance);
+            _interactiveOutput = new StringBuilder();
+            _globals = new InteractiveScriptGlobals(new StringWriter(_interactiveOutput), CSharpObjectFormatter.Instance);
         }
 
         private LogLevel MapLogLevel(ScriptLogLevel logLevel)
@@ -75,28 +75,28 @@ namespace ICSharpCore.Script
         {
             statement = PrepareStatement(statement);
 
-            if (scriptState == null)
+            if (_scriptState == null)
             {
-                scriptState = await CSharpScript.RunAsync("using Console = ICSharpCore.Script.FakeConsole;", scriptOptions, globals: globals);
-                scriptState = await scriptState.ContinueWithAsync(statement, scriptOptions);
+                _scriptState = await CSharpScript.RunAsync("using Console = ICSharpCore.Script.FakeConsole;", _scriptOptions, globals: _globals);
+                _scriptState = await _scriptState.ContinueWithAsync(statement, _scriptOptions);
             }
             else
             {
-                scriptState = await scriptState.ContinueWithAsync(statement, scriptOptions);
+                _scriptState = await _scriptState.ContinueWithAsync(statement, _scriptOptions);
             }
 
-            if (scriptState.ReturnValue == null)
+            if (_scriptState.ReturnValue == null)
                 return string.Empty;
 
-            var displayData = scriptState.ReturnValue as JObject;
+            var displayData = _scriptState.ReturnValue as JObject;
 
             if (displayData != null)
                 return displayData;
 
-            globals.Print(scriptState.ReturnValue);
+            _globals.Print(_scriptState.ReturnValue);
 
-            var output = interactiveOutput.ToString();
-            interactiveOutput.Clear();
+            var output = _interactiveOutput.ToString();
+            _interactiveOutput.Clear();
 
             return new DisplayData(output);
         }
@@ -111,22 +111,22 @@ namespace ICSharpCore.Script
             if (!statement.StartsWith("#r ") && !statement.StartsWith("#load "))
                 return false;
 
-            var lineRuntimeDependencies = runtimeDependencyResolver.GetDependenciesForCode(currentDirectory, ScriptMode.REPL, new string[0], statement);
+            var lineRuntimeDependencies = _runtimeDependencyResolver.GetDependenciesForCode(_currentDirectory, ScriptMode.REPL, new string[0], statement);
             var lineDependencies = lineRuntimeDependencies.SelectMany(rtd => rtd.Assemblies).Distinct();
             var scriptMap = lineRuntimeDependencies.ToDictionary(rdt => rdt.Name, rdt => rdt.Scripts);
 
             if (scriptMap.Count > 0)
             {
-                scriptOptions =
-                    scriptOptions.WithSourceResolver(
+                _scriptOptions =
+                    _scriptOptions.WithSourceResolver(
                         new NuGetSourceReferenceResolver(
-                            new SourceFileResolver(ImmutableArray<string>.Empty, currentDirectory), scriptMap));
+                            new SourceFileResolver(ImmutableArray<string>.Empty, _currentDirectory), scriptMap));
             }
 
             foreach (var runtimeDependency in lineDependencies)
             {
-                logger.LogInformation("Adding reference to a runtime dependency => " + runtimeDependency);
-                scriptOptions = scriptOptions.AddReferences(MetadataReference.CreateFromFile(runtimeDependency.Path));
+                _logger.LogInformation("Adding reference to a runtime dependency => " + runtimeDependency);
+                _scriptOptions = _scriptOptions.AddReferences(MetadataReference.CreateFromFile(runtimeDependency.Path));
             }
 
             return true;

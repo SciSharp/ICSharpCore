@@ -12,13 +12,13 @@ namespace ICSharpCore.Kernels
 {
     public class MessageSender
     {
-        private string key;
-        private NetMQSocket iopub;
+        private string _key;
+        private NetMQSocket _iopub;
 
         public MessageSender(string key, NetMQSocket iopub)
         {
-            this.key = key;
-            this.iopub = iopub;
+            _key = key;
+            _iopub = iopub;
         }
 
         public bool Send<T, C>(Message<T> request, C content,  string msgType)
@@ -47,17 +47,17 @@ namespace ICSharpCore.Kernels
 
             var encoder = new UTF8Encoding();
             List<string> messages = new List<string>();
-            var signature = Sign(key, ioPubMessage, messages, iopub);
+            var signature = Sign(_key, ioPubMessage, messages, _iopub);
 
             // send
             foreach (var id in request.Identifiers)
-                iopub.TrySendFrame(id, true);
+                _iopub.TrySendFrame(id, true);
             
-            iopub.SendFrame(ioPubMessage.Delimiter, true);
-            iopub.SendFrame(signature, true);
+            _iopub.SendFrame(ioPubMessage.Delimiter, true);
+            _iopub.SendFrame(signature, true);
 
             for (int i = 0; i < messages.Count; i++)
-                iopub.SendFrame(messages[i], i < messages.Count - 1);
+                _iopub.SendFrame(messages[i], i < messages.Count - 1);
 
             return true;
         }

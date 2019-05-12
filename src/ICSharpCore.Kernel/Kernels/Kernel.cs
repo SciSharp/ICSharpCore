@@ -23,9 +23,9 @@ namespace ICSharpCore
         private ConnInfo _conn;
         private string _shellAddress;
         private string _iopubAddress;
-        private bool exit = false;
-        private KernelInfoHandler<KernelInfoRequest> kernelInfoHandler;
-        private ExecuteHandler<ExecuteRequest> executeHandler;
+        private bool _exit = false;
+        private KernelInfoHandler<KernelInfoRequest> _kernelInfoHandler;
+        private ExecuteHandler<ExecuteRequest> _executeHandler;
         private ILoggerFactory _loggerFactory;
         
         public Kernel(ConnInfo conn, ILoggerFactory loggerFactory)
@@ -43,7 +43,7 @@ namespace ICSharpCore
             Console.CancelKeyPress += (s, e) =>
             {
                 e.Cancel = true;
-                exit = true;
+                _exit = true;
             };
             
             using (var shell = new RouterSocket(_shellAddress))
@@ -52,8 +52,8 @@ namespace ICSharpCore
             {
                 var iopubSender = new MessageSender(_conn.Key, iopub);
                 var shellSender = new MessageSender(_conn.Key, shell);
-                kernelInfoHandler = new KernelInfoHandler<KernelInfoRequest>(iopubSender, shellSender);
-                executeHandler = new ExecuteHandler<ExecuteRequest>(iopubSender, shellSender, _loggerFactory);
+                _kernelInfoHandler = new KernelInfoHandler<KernelInfoRequest>(iopubSender, shellSender);
+                _executeHandler = new ExecuteHandler<ExecuteRequest>(iopubSender, shellSender, _loggerFactory);
 
                 // Handler for messages coming in to the frontend
                 shell.ReceiveReady += (s, e) =>
@@ -70,7 +70,7 @@ namespace ICSharpCore
                                 iopubSender.Send(message, 
                                     new Status { ExecutionState = StatusType.Busy }, 
                                     MessageType.Status);
-                                kernelInfoHandler.Process(message);
+                                _kernelInfoHandler.Process(message);
                             }
                             break;
                         case "execute_request":
@@ -79,7 +79,7 @@ namespace ICSharpCore
                                 iopubSender.Send(message,
                                     new Status { ExecutionState = StatusType.Busy },
                                     MessageType.Status);
-                                executeHandler.Process(message);
+                                _executeHandler.Process(message);
                             }
                             break;
                     }
@@ -93,7 +93,7 @@ namespace ICSharpCore
                 Console.WriteLine($"Listening IOPub {_iopubAddress}");
 
                 // hit CRTL+C to stop the while loop
-                while (!exit)
+                while (!_exit)
                     Thread.Sleep(100);
             }
         }

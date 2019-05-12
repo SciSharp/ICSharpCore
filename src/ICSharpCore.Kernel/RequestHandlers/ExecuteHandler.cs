@@ -20,18 +20,18 @@ namespace ICSharpCore.RequestHandlers
 {
     public class ExecuteHandler<T> : IRequestHandler<T> where T : ExecuteRequest
     {
-        private MessageSender ioPub;
-        private MessageSender shell;
-        private int executionCount = 0;
-        private InteractiveScriptEngine scriptEngine;
-        private ILogger logger;
+        private MessageSender _ioPub;
+        private MessageSender _shell;
+        private int _executionCount = 0;
+        private InteractiveScriptEngine _scriptEngine;
+        private ILogger _logger;
 
         public ExecuteHandler(MessageSender ioPub, MessageSender shell, ILoggerFactory loggerFactory)
         {
-            this.ioPub = ioPub;
-            this.shell = shell;
-            this.scriptEngine = new InteractiveScriptEngine(AppContext.BaseDirectory, loggerFactory.CreateLogger(nameof(InteractiveScriptEngine)));
-            this.logger = loggerFactory.CreateLogger(nameof(ExecuteHandler<T>));
+            this._ioPub = ioPub;
+            this._shell = shell;
+            this._scriptEngine = new InteractiveScriptEngine(AppContext.BaseDirectory, loggerFactory.CreateLogger(nameof(InteractiveScriptEngine)));
+            this._logger = loggerFactory.CreateLogger(nameof(ExecuteHandler<T>));
         }
 
         public async void Process(Message<T> message)
@@ -42,17 +42,17 @@ namespace ICSharpCore.RequestHandlers
             {
                 FakeConsole.LineHandler = (line) =>
                 {
-                    ioPub.Send(message, new DisplayData(line), MessageType.DisplayData);
+                    _ioPub.Send(message, new DisplayData(line), MessageType.DisplayData);
                 };
 
-                result = await scriptEngine.ExecuteAsync(message.Content.Code);
+                result = await _scriptEngine.ExecuteAsync(message.Content.Code);
             }
             catch (Exception e)
             {
-                logger.LogError(e, "Failed to run the code: " + message.Content.Code);
+                _logger.LogError(e, "Failed to run the code: " + message.Content.Code);
 
                 var error = e.Message + Environment.NewLine + e.StackTrace;
-                ioPub.Send(message, new DisplayData(error, $"<p style=\"color:red;\">{error}</p>"), MessageType.DisplayData);
+                _ioPub.Send(message, new DisplayData(error, $"<p style=\"color:red;\">{error}</p>"), MessageType.DisplayData);
                 return;
             }
             finally
@@ -65,17 +65,17 @@ namespace ICSharpCore.RequestHandlers
                 return;
             }
 
-            ioPub.Send(message, result, MessageType.DisplayData);
+            _ioPub.Send(message, result, MessageType.DisplayData);
 
             // send execute reply to shell socket
             var executeReply = new ExecuteReplyOk
             {
-                ExecutionCount = executionCount++,
+                ExecutionCount = _executionCount++,
                 Payload = new List<Dictionary<string, string>>(),
                 UserExpressions = new Dictionary<string, string>()
             };
 
-            shell.Send(message, executeReply, MessageType.ExecuteReply);
+            _shell.Send(message, executeReply, MessageType.ExecuteReply);
         }
     }
 }
