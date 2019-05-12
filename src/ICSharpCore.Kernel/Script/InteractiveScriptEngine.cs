@@ -77,7 +77,7 @@ namespace ICSharpCore.Script
 
             if (_scriptState == null)
             {
-                _scriptState = await CSharpScript.RunAsync("using Console = ICSharpCore.Script.FakeConsole;", _scriptOptions, globals: _globals);
+                _scriptState = await CSharpScript.RunAsync("using Console = ICSharpCore.Script.FakeConsole;\r\nusing static ICSharpCore.Script.Extensions;", _scriptOptions, globals: _globals);
                 _scriptState = await _scriptState.ContinueWithAsync(statement, _scriptOptions);
             }
             else
@@ -88,7 +88,12 @@ namespace ICSharpCore.Script
             if (_scriptState.ReturnValue == null)
                 return string.Empty;
 
-            var displayData = _scriptState.ReturnValue as JObject;
+            var jdisplayData = _scriptState.ReturnValue as JObject;
+
+            if (jdisplayData != null)
+                return jdisplayData;
+
+            var displayData = _scriptState.ReturnValue as DisplayData;
 
             if (displayData != null)
                 return displayData;
