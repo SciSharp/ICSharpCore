@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <RootNamespace>ICSharpCore</RootNamespace>
+    <AssemblyName>ICSharpCore</AssemblyName>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>ICSharpCore</PackageId>
+    <Version>0.1.2</Version>
+    <Authors>Kerry Jiang, Haiping Chen</Authors>
+    <Company>SciSharp</Company>
+    <Product>SciSharp.ICSharpCore</Product>
+    <Description>Jupyter Notebook Kernel in .NET Standard 2.x.</Description>
+    <Copyright>Apache 2.0</Copyright>
+    <PackageProjectUrl>https://github.com/SciSharp</PackageProjectUrl>
+    <PackageIconUrl>https://avatars3.githubusercontent.com/u/44989469?s=200&amp;v=4</PackageIconUrl>
+    <RepositoryUrl>https://github.com/SciSharp/ICSharpCore</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>Jupyter</PackageTags>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dotnet.Script.DependencyModel" Version="0.9.0" />
+    <PackageReference Include="Dotnet.Script.DependencyModel.NuGet" Version="0.8.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
+    <PackageReference Include="NetMQ" Version="4.0.0.1" />
+  </ItemGroup>
+
+</Project>

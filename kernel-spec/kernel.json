@@ -1,5 +1,5 @@
 {
-    "argv": ["dotnet", "<PATH>/ICSharpCore.Console.dll", "{connection_file}"],
+    "argv": ["dotnet", "<PATH>/ICSharpCore.dll", "{connection_file}"],
     "display_name": "C# .netcore",
     "language": "csharp"
 }

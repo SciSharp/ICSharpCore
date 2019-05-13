@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\ICSharpCore.Kernel\ICSharpCore.Kernel.csproj" />
+    <ProjectReference Include="..\..\src\ICSharpCore\ICSharpCore.csproj" />
   </ItemGroup>
 
 </Project>
