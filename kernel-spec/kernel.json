@@ -1,6 +1,6 @@
 {
     "argv": ["dotnet", "<PATH>/ICSharpCore.dll", "{connection_file}"],
-    "display_name": "C# .netcore",
+    "display_name": "SciSharp Cube",
     "language": "csharp"
 }
 
