@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ICSharpCore.Protocols
+namespace ICSharpCore.Primitives
 {
     /// <summary>
     /// This type of message is used to bring back data that 

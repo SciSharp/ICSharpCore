@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Dotnet.Script.DependencyModel.Context;
 using Dotnet.Script.DependencyModel.NuGet;
 using Dotnet.Script.DependencyModel.Runtime;
+using ICSharpCore.Primitives;
 using ICSharpCore.Protocols;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
@@ -77,7 +78,14 @@ namespace ICSharpCore.Script
 
             if (_scriptState == null)
             {
-                _scriptState = await CSharpScript.RunAsync("using Console = ICSharpCore.Script.FakeConsole;\r\nusing static ICSharpCore.Script.Extensions;", _scriptOptions, globals: _globals);
+                var usingStatements = new []
+                {
+                    "using Console = ICSharpCore.Script.FakeConsole;",
+                    "using static ICSharpCore.Script.Extensions;",
+                    "using static ICSharpCore.Primitives.DisplayDataEmitter;"
+                };
+
+                _scriptState = await CSharpScript.RunAsync(string.Join("\r\n", usingStatements), _scriptOptions, globals: _globals);
                 _scriptState = await _scriptState.ContinueWithAsync(statement, _scriptOptions);
             }
             else

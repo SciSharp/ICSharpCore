@@ -1,5 +1,5 @@
 using System;
-using ICSharpCore.Protocols;
+using ICSharpCore.Primitives;
 using Newtonsoft.Json.Linq;
 
 namespace ICSharpCore.Script

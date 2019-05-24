@@ -1,4 +1,5 @@
 ﻿using ICSharpCore.Kernels;
+using ICSharpCore.Primitives;
 using ICSharpCore.Protocols;
 using ICSharpCore.RequestHandlers;
 using ICSharpCore.Script;
@@ -40,9 +41,9 @@ namespace ICSharpCore.RequestHandlers
 
             try
             {
-                FakeConsole.LineHandler = (line) =>
+                DisplayDataEmitter.DisplayDataHandler = (data) =>
                 {
-                    _ioPub.Send(message, new DisplayData(line), MessageType.DisplayData);
+                    _ioPub.Send(message, data, MessageType.DisplayData);
                 };
 
                 result = await _scriptEngine.ExecuteAsync(message.Content.Code);
@@ -57,7 +58,7 @@ namespace ICSharpCore.RequestHandlers
             }
             finally
             {
-                FakeConsole.LineHandler = null;
+                DisplayDataEmitter.DisplayDataHandler = null;
             }
 
             if (result == null)

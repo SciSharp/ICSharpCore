@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\build\Common.props" />
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Description>Jupyter Notebook Kernel in .NET Standard 2.x.</Description>
+    <Copyright>Apache 2.0</Copyright>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/SciSharp/ICSharpCore</PackageProjectUrl>
+    <PackageIconUrl>https://avatars3.githubusercontent.com/u/44989469?s=200&amp;v=4</PackageIconUrl>
+    <RepositoryUrl>https://github.com/SciSharp/ICSharpCore</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>Jupyter,Notebook,C#,dotnet</PackageTags>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+  </ItemGroup>
+</Project>

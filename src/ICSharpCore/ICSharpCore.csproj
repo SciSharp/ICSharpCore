@@ -1,23 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
+  <Import Project="..\..\build\Common.props" />
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <RootNamespace>ICSharpCore</RootNamespace>
     <AssemblyName>ICSharpCore</AssemblyName>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>ICSharpCore</PackageId>
-    <Version>0.1.2</Version>
-    <Authors>Kerry Jiang, Haiping Chen</Authors>
-    <Company>SciSharp</Company>
-    <Product>SciSharp.ICSharpCore</Product>
     <Description>Jupyter Notebook Kernel in .NET Standard 2.x.</Description>
     <Copyright>Apache 2.0</Copyright>
-    <PackageProjectUrl>https://github.com/SciSharp</PackageProjectUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/SciSharp/ICSharpCore</PackageProjectUrl>
     <PackageIconUrl>https://avatars3.githubusercontent.com/u/44989469?s=200&amp;v=4</PackageIconUrl>
     <RepositoryUrl>https://github.com/SciSharp/ICSharpCore</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>Jupyter</PackageTags>
+    <PackageTags>Jupyter,Notebook,C#,dotnet</PackageTags>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -34,5 +30,7 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="3.0.0" />
     <PackageReference Include="Microsoft.ML.TensorFlow.Redist" Version="0.11.0" />
   </ItemGroup>
-
+  <ItemGroup>
+    <ProjectReference Include="../ICSharpCore.Primitives/ICSharpCore.Primitives.csproj" />
+  </ItemGroup>
 </Project>

@@ -1,4 +1,5 @@
 using System;
+using ICSharpCore.Primitives;
 
 namespace ICSharpCore.Script
 {
@@ -29,11 +30,9 @@ namespace ICSharpCore.Script
             OnLineReceived(value.ToString());
         }
 
-        public static Action<string> LineHandler { get; set; }
-
         private static void OnLineReceived(string line)
         {
-            LineHandler?.Invoke(line);
+            DisplayDataEmitter.EmitText(line);
         }
     }
 }

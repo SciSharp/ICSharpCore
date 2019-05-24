@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ICSharpCore.UnitTest", "tes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ICSharpCore", "src\ICSharpCore\ICSharpCore.csproj", "{8B30BADA-FD6A-4693-B06B-32DB2CE17EF9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ICSharpCore.Primitives", "src\ICSharpCore.Primitives\ICSharpCore.Primitives.csproj", "{9423039E-0D34-4737-8E6D-20782C5E7AE3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{8B30BADA-FD6A-4693-B06B-32DB2CE17EF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8B30BADA-FD6A-4693-B06B-32DB2CE17EF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8B30BADA-FD6A-4693-B06B-32DB2CE17EF9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9423039E-0D34-4737-8E6D-20782C5E7AE3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9423039E-0D34-4737-8E6D-20782C5E7AE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9423039E-0D34-4737-8E6D-20782C5E7AE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9423039E-0D34-4737-8E6D-20782C5E7AE3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
