@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\build\Common.props" />
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <RootNamespace>ICSharpCore</RootNamespace>
+    <AssemblyName>ICSharpCore</AssemblyName>
+    <PackageId>ICSharpCore</PackageId>
+    <Description>Jupyter Notebook Kernel in .NET Standard 2.x.</Description>
+    <Copyright>Apache 2.0</Copyright>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/SciSharp/ICSharpCore</PackageProjectUrl>
+    <PackageIconUrl>https://avatars3.githubusercontent.com/u/44989469?s=200&amp;v=4</PackageIconUrl>
+    <RepositoryUrl>https://github.com/SciSharp/ICSharpCore</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>Jupyter,Notebook,C#,dotnet</PackageTags>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommandLineParser" Version="2.2.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.1.1" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.5.0" />
+    <PackageReference Include="Dotnet.Script.DependencyModel" Version="0.9.0" />
+    <PackageReference Include="Dotnet.Script.DependencyModel.NuGet" Version="0.8.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="3.0.0" />
+    <PackageReference Include="Microsoft.ML.TensorFlow.Redist" Version="0.11.0" />
+    <PackageReference Include="Microsoft.Jupyter.Core" Version="1.1.14623" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../ICSharpCore.Primitives/ICSharpCore.Primitives.csproj" />
+  </ItemGroup>
+</Project>
