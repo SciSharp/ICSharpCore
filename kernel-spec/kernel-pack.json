@@ -1,0 +1,5 @@
+{
+    "argv": ["icsharpcore-kernel", "{connection_file}"],
+    "display_name": "SciSharp Cube",
+    "language": "csharp"
+}

@@ -5,6 +5,8 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <RootNamespace>ICSharpCore</RootNamespace>
     <AssemblyName>ICSharpCore</AssemblyName>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>icsharp-kernel</ToolCommandName>
     <PackageId>ICSharpCore</PackageId>
     <Description>Jupyter Notebook Kernel in .NET Standard 2.x.</Description>
     <Copyright>Apache 2.0</Copyright>
@@ -32,5 +34,12 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../ICSharpCore.Primitives/ICSharpCore.Primitives.csproj" />
+  </ItemGroup>  
+
+  <ItemGroup>
+    <Content Include="..\..\kernel-spec\kernel-pack.json" Pack="false" Link="kernel-spec\kernel.json" CopyToOutputDirectory="Always" />
+    <Content Include="..\..\kernel-spec\logo-32x32.png" Pack="false" Link="kernel-spec\logo-32x32.png" CopyToOutputDirectory="Always" />
+    <Content Include="..\..\kernel-spec\logo-64x64.png" Pack="false" Link="kernel-spec\logo-64x64.png" CopyToOutputDirectory="Always" />
   </ItemGroup>
+
 </Project>
