@@ -30,7 +30,6 @@
     <PackageReference Include="NetMQ" Version="4.0.0.1" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="3.0.0" />
-    <PackageReference Include="Microsoft.ML.TensorFlow.Redist" Version="0.12.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../ICSharpCore.Primitives/ICSharpCore.Primitives.csproj" />
