@@ -37,12 +37,21 @@ namespace ICSharpCore.Script
 
         private string _currentDirectory;
 
+        private string[] _references;
+
         public InteractiveScriptEngine(string currentDir, ILogger logger)
         {
             _currentDirectory = currentDir;
             _logger = logger;
 
             _scriptOptions = CreateScriptOptions();
+
+            var referencesFile = Path.Combine(Directory.GetCurrentDirectory(), "refs.txt");
+
+            if (File.Exists(referencesFile))
+            {
+                _references = File.ReadAllLines(referencesFile, Encoding.UTF8);
+            }
 
             _runtimeDependencyResolver = new RuntimeDependencyResolver((t) => (level, m, e) =>
             {
@@ -84,6 +93,15 @@ namespace ICSharpCore.Script
                     "using static ICSharpCore.Script.Extensions;",
                     "using static ICSharpCore.Primitives.DisplayDataEmitter;"
                 };
+
+                var refsFromFile = string.Empty;
+
+                var references = _references;
+
+                if (references != null && references.Any())
+                {
+                    usingStatements = references.Union(usingStatements).ToArray();
+                }
 
                 _scriptState = await CSharpScript.RunAsync(string.Join("\r\n", usingStatements), _scriptOptions, globals: _globals);
                 _scriptState = await _scriptState.ContinueWithAsync(statement, _scriptOptions);
