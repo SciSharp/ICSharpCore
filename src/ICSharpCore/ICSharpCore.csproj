@@ -33,12 +33,5 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../ICSharpCore.Primitives/ICSharpCore.Primitives.csproj" />
-  </ItemGroup>  
-
-  <ItemGroup>
-    <Content Include="..\..\kernel-spec\kernel-pack.json" Pack="false" Link="kernel-spec\kernel.json" CopyToOutputDirectory="Always" />
-    <Content Include="..\..\kernel-spec\logo-32x32.png" Pack="false" Link="kernel-spec\logo-32x32.png" CopyToOutputDirectory="Always" />
-    <Content Include="..\..\kernel-spec\logo-64x64.png" Pack="false" Link="kernel-spec\logo-64x64.png" CopyToOutputDirectory="Always" />
-  </ItemGroup>
-
+  </ItemGroup> 
 </Project>
