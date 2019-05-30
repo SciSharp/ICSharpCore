@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using ICSharpCore.Script;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
 using Newtonsoft.Json;
@@ -32,6 +33,11 @@ namespace ICSharpCore
             string json = File.ReadAllText(args[0]);
             var connInfo = JsonConvert.DeserializeObject<ConnInfo>(json);
             Console.WriteLine(JsonConvert.SerializeObject(connInfo));
+
+            if (args.Length > 1)
+            {
+                InteractiveScriptEngine.RefsFilePath = args[1];
+            }
 
             // Handling messages
 

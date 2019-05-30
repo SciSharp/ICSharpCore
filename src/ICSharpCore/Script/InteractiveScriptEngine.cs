@@ -39,6 +39,8 @@ namespace ICSharpCore.Script
 
         private string[] _references;
 
+        public static string RefsFilePath { get; set; }
+
         public InteractiveScriptEngine(string currentDir, ILogger logger)
         {
             _currentDirectory = currentDir;
@@ -46,9 +48,9 @@ namespace ICSharpCore.Script
 
             _scriptOptions = CreateScriptOptions();
 
-            var referencesFile = Path.Combine(Directory.GetCurrentDirectory(), "refs.txt");
+            var referencesFile = RefsFilePath;
 
-            if (File.Exists(referencesFile))
+            if (!string.IsNullOrEmpty(referencesFile) && File.Exists(referencesFile))
             {
                 _references = File.ReadAllLines(referencesFile, Encoding.UTF8);
             }
@@ -94,12 +96,19 @@ namespace ICSharpCore.Script
                     "using static ICSharpCore.Primitives.DisplayDataEmitter;"
                 };
 
-                var refsFromFile = string.Empty;
 
                 var references = _references;
 
                 if (references != null && references.Any())
                 {
+                    foreach (var line in references)
+                    {
+                        if (line.StartsWith("#r ") || line.StartsWith("#load "))
+                        {
+                            TryLoadReferenceFromScript(line);
+                        }
+                    }
+
                     usingStatements = references.Union(usingStatements).ToArray();
                 }
 
