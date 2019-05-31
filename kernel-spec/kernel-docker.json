@@ -1,5 +1,5 @@
 {
-    "argv": ["icsharp-kernel", "{connection_file}", "/scisharp/refs.txt", "--additionalprobingpath", "/scisharp/packages"],
+    "argv": ["icsharp-kernel", "{connection_file}", "/scisharp/refs.txt"],
     "display_name": "SciSharp Cube",
     "language": "csharp"
 }
