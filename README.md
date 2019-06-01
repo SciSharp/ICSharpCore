@@ -8,6 +8,7 @@ The Jupyter team maintains the [IPython kernel](https://github.com/ipython/ipyth
 
 ![Basic Design Diagram](frontend-kernel.png)
 
+### DEMO: [SciSharp Cube](https://github.com/SciSharp/SciSharpCube), an out-of-box Machine Learning start kit.
 ### Get started
 
 1. Install [Jupyter Notebook](https://jupyter.org/):
