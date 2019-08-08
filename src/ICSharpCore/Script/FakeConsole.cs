@@ -10,6 +10,11 @@ namespace ICSharpCore.Script
             OnLineReceived(value);
         }
 
+        public static void WriteLine(object value)
+        {
+            OnLineReceived(value != null ? value.ToString() : string.Empty);
+        }
+
         public static void WriteLine(string format, params object[] args)
         {
             OnLineReceived(string.Format(format, args));
