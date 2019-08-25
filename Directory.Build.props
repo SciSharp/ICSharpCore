@@ -1,6 +1,6 @@
 <Project>
     <PropertyGroup>
-        <Version>0.2.2</Version>
+        <Version>0.2.3</Version>
         <Company>SciSharp</Company>
         <Product>SciSharp.ICSharpCore</Product>
         <Authors>Kerry Jiang, Haiping Chen</Authors>
