@@ -35,18 +35,40 @@ namespace ICSharpCore.RequestHandlers
             this._logger = loggerFactory.CreateLogger(nameof(ExecuteHandler<T>));
         }
 
+        private ConsoleProxy CreateConsoleProxy(Action<DisplayData> displayDataHandler)
+        {
+            return new ConsoleProxy((line) =>
+            {
+                var data = new DisplayData
+                {
+                    Data = new JObject
+                    {
+                        { "text/plain", line }
+                    }
+                };
+
+                displayDataHandler(data);
+            });
+        }
+
         public async void Process(Message<T> message)
         {
             object result = null;
 
             try
             {
-                DisplayDataEmitter.DisplayDataHandler = (data) =>
+                var displayDataHandler = new Action<DisplayData>((data) =>
                 {
                     _ioPub.Send(message, data, MessageType.DisplayData);
-                };
+                });
 
-                result = await _scriptEngine.ExecuteAsync(message.Content.Code);
+                DisplayDataEmitter.DisplayDataHandler = displayDataHandler;
+
+                using (var consoleProxy = CreateConsoleProxy(displayDataHandler))
+                {
+                    consoleProxy.StartRedirect();
+                    result = await _scriptEngine.ExecuteAsync(message.Content.Code);
+                }                
             }
             catch (Exception e)
             {

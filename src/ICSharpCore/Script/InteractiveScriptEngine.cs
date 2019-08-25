@@ -45,7 +45,6 @@ namespace ICSharpCore.Script
         {
             _currentDirectory = currentDir;
             _logger = logger;
-
             _scriptOptions = CreateScriptOptions();
 
             var referencesFile = RefsFilePath;
@@ -91,7 +90,6 @@ namespace ICSharpCore.Script
             {
                 var usingStatements = new []
                 {
-                    "using Console = ICSharpCore.Script.FakeConsole;",
                     "using static ICSharpCore.Script.Extensions;",
                     "using static ICSharpCore.Primitives.DisplayDataEmitter;"
                 };
@@ -111,6 +109,8 @@ namespace ICSharpCore.Script
 
                     usingStatements = references.Union(usingStatements).ToArray();
                 }
+
+                
 
                 _scriptState = await CSharpScript.RunAsync(string.Join("\r\n", usingStatements), _scriptOptions, globals: _globals);
                 _scriptState = await _scriptState.ContinueWithAsync(statement, _scriptOptions);
@@ -195,7 +195,7 @@ namespace ICSharpCore.Script
                     Assembly.GetAssembly(typeof(System.Dynamic.DynamicObject)),// System.Code
                     Assembly.GetAssembly(typeof(Microsoft.CSharp.RuntimeBinder.CSharpArgumentInfo)),// Microsoft.CSharp
                     Assembly.GetAssembly(typeof(System.Dynamic.ExpandoObject)),// System.Dynamic
-                    Assembly.GetAssembly(typeof(FakeConsole)) //ICSharpCore
+                    this.GetType().Assembly
                 };
 
             options = options.AddReferences(references);
