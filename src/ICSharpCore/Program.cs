@@ -16,7 +16,11 @@ namespace ICSharpCore
             // We introduced DependencyInjection only for logging;
             // It is not needed in .NET Core 3.0
             IServiceCollection serviceCollection = new ServiceCollection();            
-            serviceCollection.AddLogging(builder => builder.AddConsole());
+            serviceCollection.AddLogging(builder => 
+            {
+                builder.AddConsole();
+                builder.SetMinimumLevel(LogLevel.Information);
+            });
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
             var loggerFactory = serviceProvider.GetService<ILoggerFactory>();

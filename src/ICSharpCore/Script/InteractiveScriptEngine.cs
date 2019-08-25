@@ -110,8 +110,6 @@ namespace ICSharpCore.Script
                     usingStatements = references.Union(usingStatements).ToArray();
                 }
 
-                
-
                 _scriptState = await CSharpScript.RunAsync(string.Join("\r\n", usingStatements), _scriptOptions, globals: _globals);
                 _scriptState = await _scriptState.ContinueWithAsync(statement, _scriptOptions);
             }
@@ -165,7 +163,7 @@ namespace ICSharpCore.Script
 
             foreach (var runtimeDependency in lineDependencies)
             {
-                _logger.LogInformation("Adding reference to a runtime dependency => " + runtimeDependency);
+                _logger.LogDebug("Adding reference to a runtime dependency => " + runtimeDependency);
                 _scriptOptions = _scriptOptions.AddReferences(MetadataReference.CreateFromFile(runtimeDependency.Path));
             }
 
