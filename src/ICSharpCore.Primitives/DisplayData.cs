@@ -13,9 +13,6 @@ namespace ICSharpCore.Primitives
     /// </summary>
     public class DisplayData
     {
-        [JsonProperty("source")]
-        public string Source { get; set; }
-
         [JsonProperty("data")]
         public JObject Data { get; set; }
 
@@ -27,7 +24,6 @@ namespace ICSharpCore.Primitives
 
         public DisplayData()
         {
-            Source = string.Empty;
             Data = new JObject();
             MetaData = new JObject();
             Transient = new JObject();
