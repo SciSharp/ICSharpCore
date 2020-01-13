@@ -68,7 +68,7 @@ namespace ICSharpCore
                             {
                                 var message = new Message<KernelInfoRequest>(header, raw);
                                 iopubSender.Send(message, 
-                                    new Status { ExecutionState = StatusType.Busy }, 
+                                    new Status { ExecutionState = StatusType.Idle },
                                     MessageType.Status);
                                 _kernelInfoHandler.Process(message);
                             }
@@ -80,6 +80,9 @@ namespace ICSharpCore
                                     new Status { ExecutionState = StatusType.Busy },
                                     MessageType.Status);
                                 _executeHandler.Process(message);
+                                iopubSender.Send(message,
+                                    new Status { ExecutionState = StatusType.Idle },
+                                    MessageType.Status);
                             }
                             break;
                     }
